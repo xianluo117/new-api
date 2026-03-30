@@ -6,6 +6,8 @@ type DiscordSettings struct {
 	Enabled      bool   `json:"enabled"`
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
+	GuildId      string `json:"guild_id"`
+	RoleIds      string `json:"role_ids"` // 多个角色ID用分号分隔
 }
 
 // 默认配置

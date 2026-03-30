@@ -56,6 +56,8 @@ const SystemSetting = () => {
     'discord.enabled': '',
     'discord.client_id': '',
     'discord.client_secret': '',
+    'discord.guild_id': '',
+    'discord.role_ids': '',
     'oidc.enabled': '',
     'oidc.client_id': '',
     'oidc.client_secret': '',
@@ -495,6 +497,18 @@ const SystemSetting = () => {
       options.push({
         key: 'discord.client_secret',
         value: inputs['discord.client_secret'],
+      });
+    }
+    if (originInputs['discord.guild_id'] !== inputs['discord.guild_id']) {
+      options.push({
+        key: 'discord.guild_id',
+        value: inputs['discord.guild_id'],
+      });
+    }
+    if (originInputs['discord.role_ids'] !== inputs['discord.role_ids']) {
+      options.push({
+        key: 'discord.role_ids',
+        value: inputs['discord.role_ids'],
       });
     }
 
@@ -1472,6 +1486,25 @@ const SystemSetting = () => {
                         label={t('Discord Client Secret')}
                         type='password'
                         placeholder={t('敏感信息不会发送到前端显示')}
+                      />
+                    </Col>
+                  </Row>
+                  <Row
+                    gutter={{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }}
+                    style={{ marginTop: 10 }}
+                  >
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['discord.guild_id']"
+                        label={t('Discord Guild ID（社区ID）')}
+                        placeholder={t('选填，填写后仅允许该社区成员登录')}
+                      />
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <Form.Input
+                        field="['discord.role_ids']"
+                        label={t('Discord Role IDs（身份组ID）')}
+                        placeholder={t('选填，多个用分号分隔，如 123;456;789')}
                       />
                     </Col>
                   </Row>

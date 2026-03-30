@@ -356,6 +356,8 @@ func handleOAuthError(c *gin.Context, err error) {
 		common.ApiErrorMsg(c, e.Message)
 	case *oauth.TrustLevelError:
 		common.ApiErrorI18n(c, i18n.MsgOAuthTrustLevelLow)
+	case *oauth.DiscordRoleError:
+		common.ApiErrorI18n(c, i18n.MsgOAuthDiscordRoleDenied)
 	default:
 		common.ApiError(c, err)
 	}
