@@ -262,10 +262,11 @@ export async function onDiscordOAuthClicked(client_id, guild_id, options = {}) {
   if (!state) return;
   const redirect_uri = `${window.location.origin}/oauth/discord`;
   const response_type = 'code';
-  // If guild_id is configured, request guilds.members.read scope for role verification
+  // Use minimal permissions: 'identify' for basic user info
+  // Add 'guilds.members.read' only when guild_id is configured (for guild/role verification)
   const scope = guild_id
-    ? 'identify+openid+guilds.members.read'
-    : 'identify+openid';
+    ? 'identify+guilds.members.read'
+    : 'identify';
   redirectToOAuthUrl(
     `https://discord.com/oauth2/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}&state=${state}`,
   );

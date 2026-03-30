@@ -481,10 +481,12 @@ const SystemSetting = () => {
   };
 
   const submitDiscordOAuth = async () => {
-    const options = [];
+    // First, save all config options (client_id, client_secret, guild_id, role_ids)
+    const configOptions = [];
+    const enabledChanged = originInputs['discord.enabled'] !== inputs['discord.enabled'];
 
     if (originInputs['discord.client_id'] !== inputs['discord.client_id']) {
-      options.push({
+      configOptions.push({
         key: 'discord.client_id',
         value: inputs['discord.client_id'],
       });
@@ -494,26 +496,42 @@ const SystemSetting = () => {
         inputs['discord.client_secret'] &&
       inputs['discord.client_secret'] !== ''
     ) {
-      options.push({
+      configOptions.push({
         key: 'discord.client_secret',
         value: inputs['discord.client_secret'],
       });
     }
     if (originInputs['discord.guild_id'] !== inputs['discord.guild_id']) {
-      options.push({
+      configOptions.push({
         key: 'discord.guild_id',
         value: inputs['discord.guild_id'],
       });
     }
     if (originInputs['discord.role_ids'] !== inputs['discord.role_ids']) {
-      options.push({
+      configOptions.push({
         key: 'discord.role_ids',
         value: inputs['discord.role_ids'],
       });
     }
 
-    if (options.length > 0) {
-      await updateOptions(options);
+    if (configOptions.length === 0 && !enabledChanged) {
+      showSuccess(t('无变更'));
+      return;
+    }
+
+    // Save config options first (so client_id is persisted before enabling)
+    if (configOptions.length > 0) {
+      await updateOptions(configOptions);
+    }
+
+    // Then save the enabled state separately (after client_id/secret are saved)
+    if (enabledChanged) {
+      await updateOptions([
+        {
+          key: 'discord.enabled',
+          value: inputs['discord.enabled'],
+        },
+      ]);
     }
   };
 
@@ -692,6 +710,16 @@ const SystemSetting = () => {
 
   const handleCheckboxChange = async (optionKey, event) => {
     const value = event.target.checked;
+
+    if (optionKey === 'discord.enabled' && value) {
+      // If enabling Discord OAuth, check that client_id is configured
+      if (!inputs['discord.client_id'] || inputs['discord.client_id'].trim() === '') {
+        showError(t('请先在下方「配置 Discord OAuth」中填写 Client ID 和 Client Secret，然后点击保存'));
+        // Revert the checkbox state
+        formApiRef.current?.setValue('discord.enabled', false);
+        return;
+      }
+    }
 
     if (optionKey === 'PasswordLoginEnabled' && !value) {
       setShowPasswordLoginConfirmModal(true);
@@ -1508,7 +1536,14 @@ const SystemSetting = () => {
                       />
                     </Col>
                   </Row>
-                  <Button onClick={submitDiscordOAuth}>
+                  <Form.Checkbox
+                    field='discord.enabled'
+                    noLabel
+                    style={{ marginTop: 10 }}
+                  >
+                    {t('启用 Discord OAuth 登录 & 注册')}
+                  </Form.Checkbox>
+                  <Button onClick={submitDiscordOAuth} style={{ marginTop: 10 }}>
                     {t('保存 Discord OAuth 设置')}
                   </Button>
                 </Form.Section>
